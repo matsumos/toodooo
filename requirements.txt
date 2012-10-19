@@ -1,7 +1,10 @@
 Jinja2==2.6
+Mako==0.7.2
+MarkupSafe==0.15
 SQLAlchemy==0.7.9
 Shimehari==0.1.9
 Werkzeug==0.8.3
+alembic==0.4.0
 greenlet==0.4.0
 gunicorn==0.15.0
 meinheld==0.5.2
