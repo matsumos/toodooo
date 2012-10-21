@@ -1,0 +1,27 @@
+- macro paginate(pagination)
+  - if not pagination.pages <= 1
+    .pagination.pagination-centered
+      ul
+        - if pagination.hasPrev
+          li
+            a href="=urlForOtherPage(pagination.currentPage-1)" «
+        - else
+          li.disabled
+            a «
+        - for page in pagination.iterPages()
+          - if page
+            - if page != pagination.currentPage
+              li
+                a href="=urlForOtherPage(page)" =page
+            - else
+              li.active
+                a href="=urlForOtherPage(page)" =page
+          - else
+            li.disabled
+              a …
+        - if pagination.hasNext
+          li
+            a href="=urlForOtherPage(pagination.currentPage+1)" »
+        - else
+          li.disabled
+            a »

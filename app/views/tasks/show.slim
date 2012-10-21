@@ -1,0 +1,17 @@
+- import "_helpers.slim" as helpers
+- extends "layouts/application.slim"
+
+/ - set page_title = "home"
+
+/ - block head
+/   =super()
+
+/ - block scripts
+/   =super()
+
+- block content
+
+  a href="=linkToBack()" Back
+
+  h1 =task.name
+  p =task.description

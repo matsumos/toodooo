@@ -1,0 +1,18 @@
+- form_for.'form-horizontal' task enctype="multipart/form-data" with f:
+  div class="control-group{{' error' if task.errors['name']}}"
+    @label.'control-label' f name 'Task Name'
+    .controls
+      @input f name placeholder="Task Name"
+      - if task.errors['name']
+        span.help-inline =task.errors['name']
+  div class="control-group{{' error' if task.errors['description']}}"
+    @label.'control-label' f description 'Description'
+    .controls
+      @input f description placeholder="Description"
+      - if task.errors['description']
+        span.help-inline =task.errors['description']
+
+  .form-actions
+    @button.btn f submit '送信'
+    @button.btn f reset 'リセット'
+

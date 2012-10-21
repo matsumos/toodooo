@@ -1,30 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from shimehari import Router, Resource
-from controllers import IndexController
+from shimehari import Router, Resource, Root
+from werkzeug.routing import Rule
+from controllers import TasksController
 
-#
-# You can routing like Rails style.
-#
-# from shimehari.routing import RESTfulRouter
-# appRoutes = RESTfulRouter([
-#    Resource(IndexController,root=True),
-#    Resource(SomeOtherController),
-#    Resource(SomethingElseController, expect=['edit', 'destroy'])
-#])
-
+taskskController = TasksController('tasks')
 
 appRoutes = Router([
-    Resource(IndexController, root=True)
+    Root(taskskController.index),
+    Resource(taskskController),
+    Rule('/tasks/page/<int:page>', endpoint=taskskController.index),
+    Rule('/tasks/search/<string:query>', endpoint=taskskController.search),
+    Rule('/tasks/search/<string:query>/<int:page>', endpoint=taskskController.search)
 ])
-
-#
-# You can routing like werkzeug style.
-#
-# from shimehari import BasicRouter
-# appRoutes = BasicRouter([
-#    {'/': IndexController.list},
-#    {'/hoge': SomeOtherController.list},
-#    {'/hoge/<int:id>': SomeOtherController.show}
-#])

@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from .tasks_controller import TasksController
+CLASS_KEYWORD_ALIAS = intern('cls')

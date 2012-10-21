@@ -1,0 +1,21 @@
+application_js:
+    # filters: jsmin
+    output: assets/javascripts/application.js
+    contents:
+        - coffeescripts
+
+coffeescripts:
+    filters: coffeescript
+    contents:
+        - assets/javascripts/*.coffee
+
+
+application_css:
+    output: assets/stylesheets/application.css
+    contents:
+        - scss
+
+scss:
+    filters: pyscss, cssprefixer
+    contents:
+        - assets/stylesheets/*.scss

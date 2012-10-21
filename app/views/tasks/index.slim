@@ -1,0 +1,38 @@
+- import "_helpers.slim" as helpers
+- extends "layouts/application.slim"
+
+- set page_title = "Tasks"
+
+/ - block head
+/   =super()
+
+/ - block scripts
+/   =super()
+
+- block content
+  
+  h1 Listing Tasks
+
+  .row-fluid
+    .span8
+      table.table.table-striped
+        - for task in tasks:
+          tr
+            td
+              a href="/tasks/=task.id" =task.name
+            td.span2
+              a.pull-right href="/tasks/{{task.id}}/edit"
+                i.icon-edit
+                | &nbsp;edit
+            td.span2
+              a.pull-right href="/tasks/{{task.id}}" data-confirm="are you sure?" data-method="delete"
+                i.icon-trash
+                | &nbsp;delete
+      = helpers.paginate(pagination)
+      - if not tasks:
+        p 該当するタスクはありません
+    .span4
+      .well
+        form action="/tasks/search" method="get"
+          input.span12 type="search" name="query" placeholder="Search"
+          input.btn type="submit" value="Go!"

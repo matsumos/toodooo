@@ -1,0 +1,18 @@
+- import "_helpers.slim" as helpers
+- extends "layouts/application.slim"
+
+- set page_title = "Editing Task"
+
+/ - block head
+/   =super()
+
+/ - block scripts
+/   =super()
+
+- block content
+
+  a href="=linkToBack()" Back
+
+  h1 Editing Task
+
+  - include "tasks/_form.slim"
