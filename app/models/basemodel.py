@@ -2,13 +2,19 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy import create_engine
+from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm import sessionmaker, scoped_session
 from shimehari.configuration import ConfigManager
 from sqlalchemy import func
 from formencode import Invalid
+from inflector import Inflector
 import copy
+
+inflector = Inflector()
 
 config = ConfigManager.getConfig()
 url = config['SQLALCHEMY_DATABASE_URI'] + '?charset=utf8'
@@ -17,13 +23,19 @@ session = scoped_session(sessionmaker(autoflush=True, bind=engine))
 
 class Model(object):
 
+    @declared_attr
+    def __tablename__(cls):
+        return inflector.tableize(cls.__name__)
+
+    id =  Column(Integer, primary_key=True)
+
     # accessibleAttributes = ()
 
     errors = {}
     query = None
 
     def __init__(self):
-        self.schema = None
+        self.validatorSchema = None
 
     def updateAttributes(self, attributes):
         for key, value in attributes.iteritems():
@@ -36,7 +48,7 @@ class Model(object):
     def validate(self, attributes):
         self.errors = {}
         try:
-            return self.schema.to_python(attributes)
+            return self.validatorSchema.to_python(attributes)
         except Invalid, e:
             self.errors.update(e.error_dict)
             raise

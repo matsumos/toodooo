@@ -18,7 +18,7 @@
         - for task in tasks:
           tr
             td
-              a href="/tasks/=task.id" =task.name
+              a href="/tasks/=task.id" =task.name|e
             td.span2
               a.pull-right href="/tasks/{{task.id}}/edit"
                 i.icon-edit

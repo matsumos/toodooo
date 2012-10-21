@@ -16,14 +16,12 @@ class TaskSchema(Schema):
     description = validators.UnicodeString()
 
 class Task(BaseModel):
-    __tablename__ = 'tasks'
 
-    id = Column(Integer, primary_key=True)
     name = Column(String(255))
     description = Column(Text)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now())
     doned_at = Column(DateTime)
 
-    schema = TaskSchema
+    validatorSchema = TaskSchema
 

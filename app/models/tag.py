@@ -15,10 +15,7 @@ class TagSchema(Schema):
     )
 
 class Tag(BaseModel):
-    __tablename__ = 'tags'
-
-    id = Column(Integer, primary_key=True)
     name = Column(String(255))
 
-    schema = TagSchema
+    validatorSchema = TagSchema
 

@@ -106,7 +106,7 @@ class FormRecord(object):
             del attributes['caller']
         rv = ''
         for attribute, value in attributes.items():
-            rv += ' %s="%s"' % (attribute, value)
+            rv += ' %s="%s"' % (attribute, value or '')
         return rv
 
     @_assign_classes
@@ -158,7 +158,7 @@ class FormRecord(object):
                 text = attributes['caller']()
 
         if text is None or not bool(text):
-            text = getattr(self.record, field)
+            text = getattr(self.record, field) or ''
 
         return '<textarea%s>%s</textarea>' % (self._render_attributes(attributes), text)
 
