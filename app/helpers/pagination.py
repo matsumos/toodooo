@@ -35,13 +35,13 @@ class Pagination(object):
                 yield num
                 last = num
 
-def paged(page, per_page, session):
+def paged(page, per_page, query):
     pagemin = per_page * (page - 1)
     pagemax = per_page * page
 
-    count = session.count()
-    session = session[pagemin:pagemax]
+    count = query.count()
+    query = query[pagemin:pagemax]
 
     pagination = Pagination(page, per_page, count)
 
-    return session, pagination
+    return query, pagination
