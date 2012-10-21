@@ -3,9 +3,8 @@
 
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from app.models import declarative_base
-from app.models.basemodel import BaseModel
 from formencode import validators, compound, Schema
+from ..models.basemodel import BaseModel
 
 class TaskSchema(Schema):
     allow_extra_fields = True
@@ -16,7 +15,7 @@ class TaskSchema(Schema):
     )
     description = validators.UnicodeString()
 
-class Task(declarative_base, BaseModel):
+class Task(BaseModel):
     __tablename__ = 'tasks'
 
     id = Column(Integer, primary_key=True)

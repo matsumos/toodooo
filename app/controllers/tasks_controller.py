@@ -16,12 +16,12 @@ class TasksController(ApplicationController):
     PER_PAGE = 5
 
     def index(self, page=1):
-        tasks = Task.query().filter(Task.doned_at == None).order_by(Task.created_at.desc())
+        tasks = Task.query.filter(Task.doned_at == None).order_by(Task.created_at.desc())
         tasks, pagination = paged(page, self.PER_PAGE, tasks)
         return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination)
 
     def search(self, query='', page=1):
-        tasks = Task.query().filter(Task.doned_at == None).order_by(Task.created_at.desc())
+        tasks = Task.query.filter(Task.doned_at == None).order_by(Task.created_at.desc())
         tasks = tasks.filter(Task.name.like('%' + query + '%'))
         tasks, pagination = paged(page, self.PER_PAGE, tasks)
         return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination)
@@ -35,7 +35,7 @@ class TasksController(ApplicationController):
             if request.form['_method'] == 'delete':
                 return self.destroy(id)
 
-        task = Task.query().get(id)
+        task = Task.query.get(id)
 
         if not task:
             abort(404)
@@ -43,7 +43,7 @@ class TasksController(ApplicationController):
         return self.renderTemplate('tasks/show.slim', task=task)
 
     def edit(self, id):
-        task = Task.query().get(id)
+        task = Task.query.get(id)
         if not task:
             abort(404)
         return self.renderTemplate('tasks/edit.slim', task=task)
@@ -71,7 +71,7 @@ class TasksController(ApplicationController):
             return self.renderTemplate('tasks/edit.slim', task=task)
 
     def update(self, id):
-        task = Task.query().get(id)
+        task = Task.query.get(id)
         params = parseFromData(request.form.copy())
         try:
             validParams = task.validate(params['task'])
@@ -90,7 +90,7 @@ class TasksController(ApplicationController):
 
     def destroy(self, id):
         try:
-            task = Task.query().get(id)
+            task = Task.query.get(id)
             task.delete()
             flash(u'削除しました。', 'success')
             return redirect('/tasks')
