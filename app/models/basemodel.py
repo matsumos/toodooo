@@ -1,23 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from app.models import session
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.orm import sessionmaker, scoped_session
+from shimehari.configuration import ConfigManager
 from sqlalchemy import func
 from formencode import Invalid
 import copy
 
-class BaseModel(object):
+config = ConfigManager.getConfig()
+url = config['SQLALCHEMY_DATABASE_URI'] + '?charset=utf8'
+engine = create_engine(url, encoding='utf-8')
+session = scoped_session(sessionmaker(autoflush=True, bind=engine))
 
-    accessibleAttributes = ()
+class Model(object):
+
+    # accessibleAttributes = ()
 
     errors = {}
+    query = None
 
     def __init__(self):
         self.schema = None
-
-    @classmethod
-    def query(cls):
-        return session.query(cls)
 
     def updateAttributes(self, attributes):
         for key, value in attributes.iteritems():
@@ -56,3 +62,17 @@ class BaseModel(object):
         except:
             session.rollback()
             raise
+
+
+def session_mapper(cls):
+    cls.query = session.query(cls)
+
+
+class BaseDeclarativeMeta(DeclarativeMeta):
+    def __init__(cls, classname, bases, dict_):
+        DeclarativeMeta.__init__(cls, classname, bases, dict_)
+        if not Model in bases:
+            session_mapper(cls)
+
+
+BaseModel = declarative_base(engine, metaclass=BaseDeclarativeMeta, cls=Model)
