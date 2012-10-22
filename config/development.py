@@ -52,4 +52,4 @@ LOG_OUTPUT_FORMAT = '%(asctime)s %(levelname)s in %(module)s [%(pathname)s:%(lin
 
 # DATABASE
 
-SQLALCHEMY_DATABASE_URI = 'mysql://root@localhost/toodooo'
+SQLALCHEMY_DATABASE_URI = os.environ.get('CLEARDB_DATABASE_URL') or 'mysql://root@localhost/toodooo'
