@@ -27,19 +27,9 @@ class TasksController(ApplicationController):
         return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination)
 
     def show(self, id):
-
-        # TODO: あとで直す
-        if request.form.has_key('_method'):
-            if request.form['_method'] == 'put':
-                return self.update(id)
-            if request.form['_method'] == 'delete':
-                return self.destroy(id)
-
         task = Task.query.get(id)
-
         if not task:
             abort(404)
-
         return self.renderTemplate('tasks/show.slim', task=task)
 
     def edit(self, id):
