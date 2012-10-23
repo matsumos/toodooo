@@ -1,5 +1,5 @@
 $(function() {
-  return $('a').on({
+  $('a').on({
     click: function(event) {
       var csrf_param, csrf_token, form, href, link, metadata_input, method, target;
       link = $(this);
@@ -21,6 +21,22 @@ $(function() {
         }
         form.hide().append(metadata_input).appendTo('body');
         return form.submit();
+      }
+    }
+  });
+  return $('form.search').on({
+    submit: function(event) {
+      var query, url;
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      url = $(this).attr('action');
+      query = $('[name=query]', this).attr('value');
+      if (!query) {
+        return;
+      }
+      query = encodeURIComponent(query);
+      if (query) {
+        return location.href = "" + url + "/" + query;
       }
     }
   });

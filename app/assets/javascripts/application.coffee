@@ -19,5 +19,21 @@ $ ->
         if target
           form.attr('target', target)
 
-        form.hide().append(metadata_input).appendTo('body');
-        form.submit();
+        form.hide().append(metadata_input).appendTo('body')
+        form.submit()
+
+  $('form.search').on
+    submit: (event) ->
+      event.stopImmediatePropagation()
+      event.preventDefault()
+
+      url = $(this).attr('action')
+      query = $('[name=query]', this).attr('value')
+      
+      if not query
+        return
+      
+      query = encodeURIComponent(query)
+      
+      if query
+        location.href = "#{url}/#{query}"

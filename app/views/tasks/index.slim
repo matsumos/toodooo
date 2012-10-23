@@ -34,6 +34,7 @@
         p 該当するタスクはありません
     .span4
       .well
-        form action="/tasks/search" method="get"
-          input.span12 type="search" name="query" placeholder="Search"
-          input.btn type="submit" value="Go!"
+        form.search action="/tasks/search" method="get"
+          .input-append
+            input.span8 size="16" type="text" name="query" value="=query"
+            input.btn.span4 type="submit" value="Search"

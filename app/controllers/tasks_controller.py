@@ -24,7 +24,7 @@ class TasksController(ApplicationController):
         tasks = Task.query.filter(Task.doned_at == None).order_by(Task.created_at.desc())
         tasks = tasks.filter(Task.name.like('%' + query + '%'))
         tasks, pagination = paged(page, self.PER_PAGE, tasks)
-        return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination)
+        return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination, query=query)
 
     def show(self, id):
         task = Task.query.get(id)

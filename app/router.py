@@ -11,6 +11,7 @@ appRoutes = Router([
     Root(taskskController.index),
     Resource(taskskController),
     Rule('/tasks/page/<int:page>', endpoint=taskskController.index),
+    Rule('/tasks/search', endpoint=taskskController.search),
     Rule('/tasks/search/<string:query>', endpoint=taskskController.search),
     Rule('/tasks/search/<string:query>/<int:page>', endpoint=taskskController.search)
 ])
