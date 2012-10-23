@@ -45,3 +45,6 @@ class DecolaterExtension(Extension):
 
     def addTemplateFilter(self, f, name):
         self.environment.filters[name or f.__name__] = f
+
+templateMethod = DecolaterExtension.templateMethod()
+templateFilter = DecolaterExtension.templateFilter()

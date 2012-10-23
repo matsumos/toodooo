@@ -1,1 +1,1 @@
-from .decolater_extension import DecolaterExtension
+from .decolater_extension import DecolaterExtension, templateMethod, templateFilter

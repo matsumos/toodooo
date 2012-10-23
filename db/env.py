@@ -2,6 +2,8 @@ from __future__ import with_statement
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
+from .. import config as appConfig
+from shimehari.configuration import ConfigManager
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -34,7 +36,9 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+
+    # url = config.get_main_option("sqlalchemy.url")
+    url = ConfigManager.getConfig()['SQLALCHEMY_DATABASE_URI']
     context.configure(url=url)
 
     with context.begin_transaction():

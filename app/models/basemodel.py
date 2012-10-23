@@ -17,7 +17,7 @@ import copy
 inflector = Inflector()
 
 config = ConfigManager.getConfig()
-url = config['SQLALCHEMY_DATABASE_URI'] + '?charset=utf8'
+url = config['SQLALCHEMY_DATABASE_URI']
 engine = create_engine(url, encoding='utf-8')
 session = scoped_session(sessionmaker(autoflush=True, bind=engine))
 

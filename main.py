@@ -13,6 +13,7 @@ from webassets import Environment as AssetsEnvironment
 from webassets.loaders import YAMLLoader
 from jinja2_decolater_extension import DecolaterExtension
 from jinja2_form_extension import FormExtension
+from shimehari.configuration import ConfigManager
 
 shimehariOptions = {
     'templateOptions': {
@@ -24,6 +25,7 @@ shimehariOptions = {
         ]
     }
 }
+
 
 app = Shimehari(__name__, **shimehariOptions)
 
@@ -38,6 +40,10 @@ def setupAssetEnviromentFromYAML(app, yamlFile):
 	app.templateEnv.assets_environment = assetEnv
 setupAssetEnviromentFromYAML(app, 'assets/bundles.yml')
 
+isDebug = ConfigManager.getConfig().get('DEBUG', False)
+if isDebug:
+    from werkzeug.debug import DebuggedApplication
+    app = DebuggedApplication(app, evalex=True)
 
-if __name__ == '__main__':
-    app.drink()
+# if __name__ == '__main__':
+#     app.drink()

@@ -51,5 +51,5 @@ LOG_DEBUG_FORMAT = '%(levelname)s in %(module)s [%(pathname)s:%(lineno)d]:\n%(me
 LOG_OUTPUT_FORMAT = '%(asctime)s %(levelname)s in %(module)s [%(pathname)s:%(lineno)d]:\n%(message)s\n'
 
 # DATABASE
-
-SQLALCHEMY_DATABASE_URI = os.environ.get('CLEARDB_DATABASE_URL') or 'mysql://root@localhost/toodooo'
+import os
+SQLALCHEMY_DATABASE_URI = os.environ.get('HEROKU_POSTGRESQL_CHARCOAL_URL') or 'mysql://root@localhost/toodooo?charset=utf8'

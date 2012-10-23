@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from jinja2_decolater_extension import DecolaterExtension
-
-ext = DecolaterExtension
+from jinja2_decolater_extension import templateMethod, templateFilter
 
 from shimehari import request
 from shimehari.helpers import urlFor
 
-@ext.templateMethod()
+@templateMethod
 def urlForOtherPage(page):
     args = request.viewArgs.copy()
     args['page'] = page
@@ -17,7 +15,7 @@ def urlForOtherPage(page):
 
 from datetime import datetime
 
-@ext.templateFilter()
+@templateFilter
 def timeSince(dt, past_="ago", 
     future_="from now", 
     default="just now"):
@@ -57,22 +55,21 @@ def timeSince(dt, past_="ago",
 
 from shimehari import getFlashedMessage
 
-@ext.templateMethod()
+@templateMethod
 def getFlashedMessages(*args,**kwargs):
     return getFlashedMessage(*args,**kwargs)
 
 
 from jinja2.runtime import Undefined
 
-@ext.templateFilter()
+@templateFilter
 def altImage(value, alternative):
     if value == None or value == '' or isinstance(value, Undefined):
         return '/assets/images/default-%s.gif' % alternative
     return value
 
 
-@ext.templateMethod()
-def linkToBack():
-    referrer = request and request.environ["HTTP_REFERER"]
-    referrer = referrer or 'javascript:history.back()'
+@templateMethod
+def backPath():
+    referrer = request.environ.get("HTTP_REFERER") or 'javascript:history.back()'
     return referrer
