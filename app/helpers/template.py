@@ -73,3 +73,4 @@ def altImage(value, alternative):
 def backPath():
     referrer = request.environ.get("HTTP_REFERER") or 'javascript:history.back()'
     return referrer
+

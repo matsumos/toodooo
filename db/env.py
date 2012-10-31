@@ -2,7 +2,7 @@ from __future__ import with_statement
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
-from .. import config as appConfig
+# from .. import config as appConfig
 from shimehari.configuration import ConfigManager
 
 # this is the Alembic Config object, which provides
@@ -37,8 +37,10 @@ def run_migrations_offline():
 
     """
 
-    # url = config.get_main_option("sqlalchemy.url")
-    url = ConfigManager.getConfig()['SQLALCHEMY_DATABASE_URI']
+    url = config.get_main_option("sqlalchemy.url")
+    # url = ConfigManager.getConfig()['SQLALCHEMY_DATABASE_URI']
+    # import os
+    # url = os.environ.get('HEROKU_POSTGRESQL_CHARCOAL_URL') or 'mysql://root@localhost/toodooo?charset=utf8'
     context.configure(url=url)
 
     with context.begin_transaction():

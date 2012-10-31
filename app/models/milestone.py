@@ -6,7 +6,7 @@ from sqlalchemy.orm import *
 from formencode import validators, compound, Schema
 from ..models.basemodel import BaseModel
 
-class TagSchema(Schema):
+class MilestoneSchema(Schema):
     allow_extra_fields = True
     # filter_extra_fields = True
     name = compound.All(
@@ -14,8 +14,8 @@ class TagSchema(Schema):
         validators.MaxLength(255)
     )
 
-class Tag(BaseModel):
+class Milestone(BaseModel):
     name = Column(String(255))
 
-    validatorSchema = TagSchema
+    validatorSchema = MilestoneSchema
 

@@ -14,17 +14,35 @@
 
   .row-fluid
     .span8
+      p.clearfix
+        a.btn.btn-primary.pull-right href="/tasks/new"
+          i.icon-plus
+          | &nbsp; New Task
+
+      ul class="nav nav-tabs"
+        li class="='active' if action == 'index'"
+          a href="/tasks" ToDo
+        li class="='active' if action == 'done'"
+          a href="/tasks/dones" Done
+
       table.table.table-striped
         - for task in tasks:
           tr
+            td.span1
+              - if not task.doned_at
+                a.pull-right data-method="put" href="/tasks/{{task.id}}/done"
+                 i.icon-check
+              - else
+                a.pull-right data-method="put" href="/tasks/{{task.id}}/undone"
+                 i.icon-check-empty
             td
-              a href="/tasks/=task.id" =task.name|e
+              a href="/tasks/=task.id" =task.name|e              
             td.span2
-              a.pull-right href="/tasks/{{task.id}}/edit"
+              a.pull-right.appear-on-cursol data-appear-parent="tr" href="/tasks/{{task.id}}/edit"
                 i.icon-edit
                 | &nbsp;edit
             td.span2
-              a.pull-right href="/tasks/{{task.id}}" data-confirm="are you sure?" data-method="delete"
+              a.pull-right.appear-on-cursol data-appear-parent="tr" href="/tasks/{{task.id}}" data-confirm="are you sure?" data-method="delete"
                 i.icon-trash
                 | &nbsp;delete
 
@@ -38,3 +56,6 @@
           .input-append
             input.span8 size="16" type="text" name="query" value="=query"
             input.btn.span4 type="submit" value="Search"
+          - for tag in tags:
+            label
+              input type="checkbox" name="example" value="サンプル" checked="checked" =tag.name

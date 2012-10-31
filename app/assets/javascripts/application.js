@@ -24,7 +24,7 @@ $(function() {
       }
     }
   });
-  return $('form.search').on({
+  $('form.search').on({
     submit: function(event) {
       var query, url;
       event.stopImmediatePropagation();
@@ -38,6 +38,21 @@ $(function() {
       if (query) {
         return location.href = "" + url + "/" + query;
       }
+    }
+  });
+  return $('.appear-on-cursol').each(function() {
+    var appearParent, that;
+    that = $(this);
+    appearParent = that.data('appear-parent');
+    if (appearParent) {
+      return that.closest(appearParent).on({
+        mouseover: function() {
+          return that.removeClass('appear-on-cursol');
+        },
+        mouseout: function() {
+          return that.addClass('appear-on-cursol');
+        }
+      });
     }
   });
 });

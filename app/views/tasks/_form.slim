@@ -2,7 +2,8 @@
   div class="control-group{{' error' if task.errors['name']}}"
     @label.'control-label' f name 'Task Name'
     .controls
-      @input f name placeholder="Task Name"
+      / @input f name placeholder="Task Name"
+      =f.input('name', placeholder='TaskName')
       - if task.errors['name']
         span.help-inline =task.errors['name']
   div class="control-group{{' error' if task.errors['description']}}"
@@ -11,7 +12,14 @@
       @input f description placeholder="Description"
       - if task.errors['description']
         span.help-inline =task.errors['description']
-
+  div class="control-group"
+    @label.'control-label' f milestone 'Milestone'
+    .controls
+      @association f milestone
+  div class="control-group"
+    @label.'control-label' f tags 'Tags'
+    .controls
+      @association f tags
   .form-actions
     @button.btn f submit '送信'
     @button.btn f reset 'リセット'

@@ -38,10 +38,39 @@ class Model(object):
         self.validatorSchema = None
 
     def updateAttributes(self, attributes):
+        print attributes
         for key, value in attributes.iteritems():
             # mass assignment 対策
             # if not key in self.accessibleAttributes:
                # continue
+
+            if isinstance(getattr(self, key), list):
+                if hasattr(getattr(self, key), '_sa_adapter'):
+
+                    table_name = getattr(self, key)._sa_adapter._key
+
+                    component_path = str("app.models.%s" % inflector.classify(table_name)).split('.')
+                    package_path   = component_path[:-1]
+                    package_name   = ".".join(package_path)
+                    class_name     = component_path[-1]
+
+                    __import__(str(package_name))
+                    import sys
+                    cls = getattr(sys.modules[package_name],class_name)
+
+                    string_value = value
+
+                    value = []
+                    for val in string_value:
+                        value.append(session.query(cls).get(val))
+            else:
+                if hasattr(self, key + '_id'):
+                    if value == '':
+                        value = None
+                    setattr(self, key + '_id', value)
+                    continue
+
+            # print key, value
             setattr(self, key, value)
         self.save()
 

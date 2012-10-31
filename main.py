@@ -29,7 +29,10 @@ shimehariOptions = {
 
 app = Shimehari(__name__, **shimehariOptions)
 
-app.templateEnv.slim_debug = False
+app.templateEnv.authenticity_token_generator = app.templateEnv.globals['csrfToken']
+app.templateEnv.authenticity_token_key = '_csrfToken'
+# app.templateEnv.slim_debug = False
+# app.templateEnv.slim_print = True
 
 def setupAssetEnviromentFromYAML(app, yamlFile):
 	appDir = './' + app.config['APP_DIRECTORY'] + '/'
@@ -40,10 +43,10 @@ def setupAssetEnviromentFromYAML(app, yamlFile):
 	app.templateEnv.assets_environment = assetEnv
 setupAssetEnviromentFromYAML(app, 'assets/bundles.yml')
 
-isDebug = ConfigManager.getConfig().get('DEBUG', False)
-if isDebug:
-    from werkzeug.debug import DebuggedApplication
-    app = DebuggedApplication(app, evalex=True)
+# isDebug = ConfigManager.getConfig().get('DEBUG', False)
+# if isDebug:
+#     from werkzeug.debug import DebuggedApplication
+#     app = DebuggedApplication(app, evalex=True)
 
 # if __name__ == '__main__':
 #     app.drink()

@@ -5,9 +5,12 @@ from shimehari import request, Response, ApplicationController, flash, redirect
 from werkzeug.exceptions import abort
 from ..helpers import paged
 from app.models import Task
+from app.models import Tag
 from jinja2_form_extension.helpers import parse_form_data as parseFromData
+from formencode.api import Invalid
 
 class TasksController(ApplicationController):
+
     def __init__(self, name):
         ApplicationController.__init__(self, name)
 
@@ -18,7 +21,16 @@ class TasksController(ApplicationController):
     def index(self, page=1):
         tasks = Task.query.filter(Task.doned_at == None).order_by(Task.created_at.desc())
         tasks, pagination = paged(page, self.PER_PAGE, tasks)
-        return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination)
+
+        tags = Tag.query.order_by(Tag.name)
+        # import pdb; pdb.set_trace()
+
+        return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination, tags=tags, action='index')
+
+    def dones(self, page=1):
+        tasks = Task.query.filter(Task.doned_at != None).order_by(Task.doned_at.desc())
+        tasks, pagination = paged(page, self.PER_PAGE, tasks)
+        return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination, action='done')
 
     def search(self, query='', page=1):
         tasks = Task.query.filter(Task.doned_at == None).order_by(Task.created_at.desc())
@@ -28,6 +40,7 @@ class TasksController(ApplicationController):
 
     def show(self, id):
         task = Task.query.get(id)
+        # import pdb; pdb.set_trace()
         if not task:
             abort(404)
         return self.renderTemplate('tasks/show.slim', task=task)
@@ -37,6 +50,18 @@ class TasksController(ApplicationController):
         if not task:
             abort(404)
         return self.renderTemplate('tasks/edit.slim', task=task)
+
+    def done(self, id):
+        task = Task.query.get(id)
+        task.done()
+        flash(u'タスクを完了しました。', 'success')
+        return redirect(request.environ.get("HTTP_REFERER"))
+
+    def undone(self, id):
+        task = Task.query.get(id)
+        task.undone()
+        flash(u'タスクを未完了にしました', 'success')
+        return redirect(request.environ.get("HTTP_REFERER"))
 
     def new(self, *args, **kwargs):
         task = Task()
@@ -50,7 +75,8 @@ class TasksController(ApplicationController):
             task.updateAttributes(validParams)
             flash(u'新規作成しました。', 'success')
             return redirect('/tasks/%s' % task.id)
-        except:
+        except Invalid, e:
+            print e
             flash(u'保存に失敗しました。', 'error')
 
             #うーむ...
@@ -68,7 +94,8 @@ class TasksController(ApplicationController):
             task.updateAttributes(validParams)
             flash(u'変更しました。', 'success')
             return redirect('/tasks/%s' % id)
-        except:
+        except Invalid, e:
+            print e
             flash(u'保存に失敗しました。', 'error')
 
             #うーむ...

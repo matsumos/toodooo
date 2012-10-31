@@ -7,8 +7,8 @@ DEBUG = True
 
 # TEST = False
 
-# APP_DIRECTORY = 'app'
-# MAIN_SCRIPT = 'main'
+APP_DIRECTORY = 'app'
+MAIN_SCRIPT = 'main'
 # APP_INSTANCE_NAME = 'app'
 # CONTROLLER_DIRECTORY = 'controllers'
 # VIEW_DIRECTORY = 'views'
@@ -53,3 +53,5 @@ LOG_OUTPUT_FORMAT = '%(asctime)s %(levelname)s in %(module)s [%(pathname)s:%(lin
 # DATABASE
 import os
 SQLALCHEMY_DATABASE_URI = os.environ.get('HEROKU_POSTGRESQL_CHARCOAL_URL') or 'mysql://root@localhost/toodooo?charset=utf8'
+
+# CSRF_EXPIRE = 1

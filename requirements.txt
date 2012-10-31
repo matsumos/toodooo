@@ -16,6 +16,6 @@ gunicorn==0.15.0
 meinheld==0.5.2
 psycopg2==2.4.5
 pyScss==1.1.4
--e git+https://github.com/matsumos/slimish-jinja2.git@754ac30247db8e26ac7ae3435d222543ca59e389#egg=slimish_jinja-dev
+-e git+https://github.com/matsumos/slimish-jinja2.git#egg=slimish_jinja-dev
 webassets==0.7.1
 wsgiref==0.1.2

@@ -10,7 +10,24 @@
 
 - block content
 
-  a href="=backPath()" Back
+  a href="/tasks" Back To List
 
+  - if not task.doned_at
+    a.btn.btn-primary.pull-right data-method="put" href="/tasks/{{task.id}}/done"
+     i.icon-check
+     | &nbsp;Done
+  - else
+    a.btn.btn-primary.pull-right data-method="put" href="/tasks/{{task.id}}/undone"
+     i.icon-check-empty
+     | &nbsp;Undone
+
+  - if task.doned_at
+    p Done in =task.doned_at|timeSince.
   h1 =task.name|e
   p =task.description|e
+  p =task.milestone.name|e
+
+  p
+    - for tag in task.tags:
+      span.label =tag.name
+  a href="=task.id/edit" Edit

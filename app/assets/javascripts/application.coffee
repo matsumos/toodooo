@@ -37,3 +37,13 @@ $ ->
       
       if query
         location.href = "#{url}/#{query}"
+
+  $('.appear-on-cursol').each ->
+    that = $(this)
+    appearParent = that.data('appear-parent')
+    if appearParent
+      that.closest(appearParent).on
+        mouseover: ->
+          that.removeClass('appear-on-cursol')
+        mouseout: ->
+          that.addClass('appear-on-cursol')

@@ -16,3 +16,7 @@ footer {
     padding-right: 0;
     padding-left: 0
     }
+
+.appear-on-cursol {
+    visibility: hidden
+    }

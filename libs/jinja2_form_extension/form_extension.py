@@ -28,7 +28,8 @@ class FormExtension(Extension):
         'tel',
         'email',
         'search',
-        'url'
+        'url',
+        'association'
     ])
 
     def __init__(self, environment):
@@ -38,7 +39,9 @@ class FormExtension(Extension):
         environment.extend(
             use_html5=True,
             required_text='required',
-            required_mark='*'
+            required_mark='*',
+            authenticity_token_generator=None,
+            authenticity_token_key='authenticity_token'
         )
 
     def parse(self, parser):
@@ -86,7 +89,8 @@ class FormExtension(Extension):
         record.use_html5 = self.environment.use_html5
         record.required_text = self.environment.required_text
         record.required_mark = self.environment.required_mark
-        record.csrf_token = self.environment.globals['csrfToken']
+        record.authenticity_token_generator = self.environment.authenticity_token_generator
+        record.authenticity_token_key = self.environment.authenticity_token_key
 
         return record.form(caller, **form_attributes)
 
@@ -252,6 +256,15 @@ class FormExtension(Extension):
 
     def _exec_checkboxes(self, record, field, options, **kwargs):
         return record.checkboxes(field, options, **kwargs)
+
+    @_common_parse
+    def _parse_association_tag(self, parser, tag):
+        record = parser.parse_expression()
+        field_name = nodes.Const(parser.stream.expect('name').value)
+        return [record, field_name]
+
+    def _exec_association(self, record, field, **kwargs):
+        return record.association(field, **kwargs)
 
     @_common_parse
     def _parse_button_tag(self, parser, tag):

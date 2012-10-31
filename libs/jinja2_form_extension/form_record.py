@@ -57,7 +57,8 @@ class FormRecord(object):
     required_mark = ''
     errors = {}
     columns_data = {}
-    csrf_token = None
+    authenticity_token_generator = None
+    authenticity_token_key = None
 
     def __init__(self, record = None):
         self.record = record
@@ -122,8 +123,8 @@ class FormRecord(object):
 
         inner = ''
         inner += '<div style="margin:0;padding:0;display:inline">'
-        # if self.csrf_token:
-        #     inner += '<input name="_csrfToken" type="hidden" value="%s">' % self.csrf_token
+        if self.authenticity_token_key and self.authenticity_token_generator:
+            inner += '<input name="%s" type="hidden" value="%s">' % (self.authenticity_token_key, self.authenticity_token_generator())
         if self.method != 'post':
             inner += '<input name="_method" type="hidden" value="%s">' % self.method
         inner += '<input name="utf8" type="hidden" value="&#x2713;">'
@@ -205,8 +206,8 @@ class FormRecord(object):
     @_assign_id
     @_assign_name
     @_assign_classes
-    def select(self, field, options, **attributes):
-        value = getattr(self.record, field)
+    def select(self, field, options, converted_value=None, **attributes):
+        value = converted_value or getattr(self.record, field)
 
         rv = '<select%s>' % self._render_attributes(attributes)
         rv += '<option value=""></option>'
@@ -216,8 +217,8 @@ class FormRecord(object):
         return rv
 
     @_assign_name
-    def radiobuttons(self, field, options, **attributes):
-        value = getattr(self.record, field)
+    def radiobuttons(self, field, options, converted_value=None, **attributes):
+        value = converted_value or getattr(self.record, field)
 
         label_attributes = {}
         if CLASS_KEYWORD_ALIAS in attributes:
@@ -234,8 +235,8 @@ class FormRecord(object):
         return rv
 
     @_assign_name
-    def checkboxes(self, field, options, **attributes):
-        values = getattr(self.record, field)
+    def checkboxes(self, field, options, converted_values=None, **attributes):
+        values = converted_values or getattr(self.record, field)
 
         label_attributes = {}
         if CLASS_KEYWORD_ALIAS in attributes:
@@ -253,6 +254,40 @@ class FormRecord(object):
             rv += '<label%s><input type="checkbox" value="%s"%s%s>%s</label>' % (self._render_attributes(label_attributes), option_value, checked, self._render_attributes(attributes), option_text)
         
         return rv
+    
+
+    def association(self, field, **attributes):
+
+        from sqlalchemy.orm.properties import RelationshipProperty
+
+        prop = self.record.__mapper__.get_property(field)
+
+        if not isinstance(prop, RelationshipProperty):
+            # TODO: あとでエラー出す
+            raise
+
+        direction = prop.direction.name
+
+        from app.models import session
+
+        options = {}
+        for item in session.query(prop.mapper).all():
+            options[item.id] = item.name
+
+        if direction in ['MANYTOMANY', 'ONETOMANY']:
+            converted_values = []
+            for value in getattr(self.record, field):
+                if not value is None:
+                    converted_values.append(value.id)
+            return self.checkboxes(field, options, converted_values, **attributes)
+
+        elif direction == 'MANYTOONE':
+            converted_value = None
+
+            if not getattr(self.record, field) is None:
+                converted_value = getattr(self.record, field).id
+
+            return self.select(field, options, converted_value, **attributes)        
 
     @_assign_id
     @_assign_name
