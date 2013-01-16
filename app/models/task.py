@@ -6,6 +6,7 @@ from sqlalchemy.orm import *
 from formencode import validators, compound, Schema
 from ..models.basemodel import BaseModel
 
+
 class TaskSchema(Schema):
     allow_extra_fields = True
     # filter_extra_fields = True
@@ -21,6 +22,7 @@ TasksTags = Table('tasks_tags', BaseModel.metadata,
     Column('task_id', Integer, ForeignKey('tasks.id')),
     Column('tag_id', Integer, ForeignKey('tags.id'))
 )
+
 
 class Task(BaseModel):
 

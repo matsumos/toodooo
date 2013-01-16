@@ -4,10 +4,10 @@
 from shimehari import request, Response, ApplicationController, flash, redirect
 from werkzeug.exceptions import abort
 from ..helpers import paged
-from app.models import Task
-from app.models import Tag
+from app.models import *
 from jinja2_form_extension.helpers import parse_form_data as parseFromData
-from formencode.api import Invalid
+from formencode import Invalid
+
 
 class TasksController(ApplicationController):
 
@@ -19,11 +19,16 @@ class TasksController(ApplicationController):
     PER_PAGE = 5
 
     def index(self, page=1):
+        # import pycallgraph
+        # pycallgraph.start_trace()
+
         tasks = Task.query.filter(Task.doned_at == None).order_by(Task.created_at.desc())
         tasks, pagination = paged(page, self.PER_PAGE, tasks)
 
         tags = Tag.query.order_by(Tag.name)
         # import pdb; pdb.set_trace()
+
+        # pycallgraph.make_dot_graph('callgraph.png')
 
         return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination, tags=tags, action='index')
 
@@ -72,38 +77,45 @@ class TasksController(ApplicationController):
         params = parseFromData(request.form.copy())
         try:
             validParams = task.validate(params['task'])
-            task.updateAttributes(validParams)
+            task.update(validParams)
+            # task.update(params['task'])
             flash(u'新規作成しました。', 'success')
             return redirect('/tasks/%s' % task.id)
         except Invalid, e:
-            print e
             flash(u'保存に失敗しました。', 'error')
 
-            #うーむ...
-            task = task.copy()
-            for key, value in params['task'].iteritems():
-                setattr(task, key, value)
+            print e
 
-            return self.renderTemplate('tasks/edit.slim', task=task)
+            #うーむ...
+            # task = task.copy()
+            # task.update(params['task'])
+
+            return self.renderTemplate('tasks/edit.slim', task=task, errors=e.error_dict, params=params)
 
     def update(self, id):
         task = Task.query.get(id)
         params = parseFromData(request.form.copy())
+        print params
+        # task.update(params['task'])
+        # print task.name
         try:
             validParams = task.validate(params['task'])
-            task.updateAttributes(validParams)
+            task.update(validParams)
+            # task.save()
             flash(u'変更しました。', 'success')
             return redirect('/tasks/%s' % id)
         except Invalid, e:
-            print e
+            # import sys
+            # print sys.exc_info()[0]
+            # print sys.exc_info()[1]
+
             flash(u'保存に失敗しました。', 'error')
 
             #うーむ...
-            task = task.copy()
-            for key, value in params['task'].iteritems():
-                setattr(task, key, value)
+            # task = task.copy()
+            # task.update(params['task'])
 
-            return self.renderTemplate('tasks/edit.slim', task=task)
+            return self.renderTemplate('tasks/edit.slim', task=task, errors=e.error_dict, params=params)
 
     def destroy(self, id):
         try:

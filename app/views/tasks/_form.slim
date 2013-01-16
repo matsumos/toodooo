@@ -1,17 +1,21 @@
 - form_for.'form-horizontal' task enctype="multipart/form-data" with f:
-  div class="control-group{{' error' if task.errors['name']}}"
+  - if errors
+    =f.set_errors(errors)
+  - if params
+    =f.set_params(params['task'])
+  div class="control-group{{' error' if f.errors['name']}}"
     @label.'control-label' f name 'Task Name'
     .controls
       / @input f name placeholder="Task Name"
       =f.input('name', placeholder='TaskName')
-      - if task.errors['name']
-        span.help-inline =task.errors['name']
-  div class="control-group{{' error' if task.errors['description']}}"
+      - if f.errors['name']
+        span.help-inline =f.errors['name']
+  div class="control-group{{' error' if f.errors['description']}}"
     @label.'control-label' f description 'Description'
     .controls
       @input f description placeholder="Description"
-      - if task.errors['description']
-        span.help-inline =task.errors['description']
+      - if f.errors['description']
+        span.help-inline =f.errors['description']
   div class="control-group"
     @label.'control-label' f milestone 'Milestone'
     .controls

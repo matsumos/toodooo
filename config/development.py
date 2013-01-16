@@ -24,13 +24,13 @@ STATIC_DIRECTORY = ['../static']
 
 # TEMPLATE_ENGINE = 'jinja2'
 
-# SECRET_KEY = '_secret_shimehari'
+SECRET_KEY = 'hogeeeeeeeeeeeeeee'
 
 # SERVER_NAME = None
 
 # PRESERVE_CONTEXT_ON_EXCEPTION = None
 # PERMANENT_SESSION_LIFETIME = timedelta(days=31)
-# SESSION_COOKIE_NAME = 'session'
+SESSION_COOKIE_NAME = '_toodooo_session'
 # SESSION_COOKIE_HTTPONLY = True
 # SESSION_COOKIE_SECURE = False
 
@@ -55,3 +55,7 @@ import os
 SQLALCHEMY_DATABASE_URI = os.environ.get('HEROKU_POSTGRESQL_CHARCOAL_URL') or 'mysql://root@localhost/toodooo?charset=utf8'
 
 # CSRF_EXPIRE = 1
+
+DEBUG_TB_TEMPLATE_EDITOR_ENABLED = True
+DEBUG_TB_PROFILER_ENABLED = True
+DEBUG_TB_INTERCEPT_REDIRECTS = False

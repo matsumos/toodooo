@@ -28,7 +28,6 @@ shimehariOptions = {
 
 
 app = Shimehari(__name__, **shimehariOptions)
-
 app.templateEnv.authenticity_token_generator = app.templateEnv.globals['csrfToken']
 app.templateEnv.authenticity_token_key = '_csrfToken'
 # app.templateEnv.slim_debug = False
@@ -42,6 +41,10 @@ def setupAssetEnviromentFromYAML(app, yamlFile):
 		assetEnv.register(bundle, bundles[bundle])
 	app.templateEnv.assets_environment = assetEnv
 setupAssetEnviromentFromYAML(app, 'assets/bundles.yml')
+
+from shimehari_debugtoolbar import DebugToolbarExtension
+
+toolbar = DebugToolbarExtension(app)
 
 # isDebug = ConfigManager.getConfig().get('DEBUG', False)
 # if isDebug:

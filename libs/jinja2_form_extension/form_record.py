@@ -49,19 +49,22 @@ from sqlalchemy.types import (
 
 inflector = Inflector()
 
+
 class FormRecord(object):
 
     record = None
     use_html5 = False
     required_text = ''
     required_mark = ''
-    errors = {}
     columns_data = {}
     authenticity_token_generator = None
     authenticity_token_key = None
+    errors = {}
+    changed_params = {}
 
-    def __init__(self, record = None):
+    def __init__(self, record=None, errors=None):
         self.record = record
+        self.errors = errors
         model_name = self.record.__tablename__
         if record.id == None:
             self.action = '/%s' % model_name
@@ -69,9 +72,20 @@ class FormRecord(object):
         else:
             self.action = '/%s/%s' % (model_name, record.id)
             self.method = 'put'
-        self.errors = self.record.errors
         # sqlalchemy
         self.columns_data = self.record.__table__.columns._data
+
+    def set_errors(self, errors):
+        self.errors = errors
+
+    def set_params(self, params):
+        self.changed_params = params
+
+    def getvalue(self, field):
+        if field in self.changed_params:
+            return self.changed_params[field]
+        else:
+            return getattr(self.record, field)
 
     def _assign_classes(f):
         def decorator(self, *args, **attributes):
@@ -146,20 +160,19 @@ class FormRecord(object):
             if attributes['required'] == True:
                 required_text = '<abbr title="%s">%s</abbr> ' % (self.required_text, self.required_mark)
             del attributes['required']
-        
+
         return '<label%s>%s%s</label>' % (self._render_attributes(attributes), required_text, text)
 
     @_assign_id
     @_assign_name
     @_assign_classes
     def textarea(self, field, text = None, **attributes):
-
         if text is None:
             if 'caller' in attributes and attributes['caller'] != '':
                 text = attributes['caller']()
 
         if text is None or not bool(text):
-            text = getattr(self.record, field) or ''
+            text = self.getvalue(field) or ''
 
         return '<textarea%s>%s</textarea>' % (self._render_attributes(attributes), text)
 
@@ -168,7 +181,7 @@ class FormRecord(object):
     @_assign_classes
     def boolean(self, field, text = None, **attributes):
         checked = ''
-        if bool(getattr(self.record, field)):
+        if bool(self.getvalue(field)):
             checked = ' checked="checked"'
         return '<input type="checkbox"%s%s>%s' % (self._render_attributes(attributes), checked, text)
 
@@ -207,18 +220,20 @@ class FormRecord(object):
     @_assign_name
     @_assign_classes
     def select(self, field, options, converted_value=None, **attributes):
-        value = converted_value or getattr(self.record, field)
+        value = converted_value or self.getvalue(field)
 
         rv = '<select%s>' % self._render_attributes(attributes)
         rv += '<option value=""></option>'
         rv += self._render_options(options, value)
-        
+
         rv += '</select>'
         return rv
 
     @_assign_name
     def radiobuttons(self, field, options, converted_value=None, **attributes):
-        value = converted_value or getattr(self.record, field)
+        value = converted_value or self.getvalue(field)
+
+        print value
 
         label_attributes = {}
         if CLASS_KEYWORD_ALIAS in attributes:
@@ -231,12 +246,12 @@ class FormRecord(object):
             if value == option_value:
                 checked = ' checked="checked"'
             rv += '<label%s><input type="radio" value="%s"%s%s>%s</label>' % (self._render_attributes(label_attributes), option_value, checked, self._render_attributes(attributes), option_text)
-        
+
         return rv
 
     @_assign_name
     def checkboxes(self, field, options, converted_values=None, **attributes):
-        values = converted_values or getattr(self.record, field)
+        values = converted_values or self.getvalue(field)
 
         label_attributes = {}
         if CLASS_KEYWORD_ALIAS in attributes:
@@ -252,9 +267,8 @@ class FormRecord(object):
             if option_value in values:
                 checked = ' checked="checked"'
             rv += '<label%s><input type="checkbox" value="%s"%s%s>%s</label>' % (self._render_attributes(label_attributes), option_value, checked, self._render_attributes(attributes), option_text)
-        
+
         return rv
-    
 
     def association(self, field, **attributes):
 
@@ -266,34 +280,48 @@ class FormRecord(object):
             # TODO: あとでエラー出す
             raise
 
-        direction = prop.direction.name
-
-        from app.models import session
-
         options = {}
-        for item in session.query(prop.mapper).all():
+        for item in self.record.session.query(prop.mapper).all():
             options[item.id] = item.name
+
+        direction = prop.direction.name
 
         if direction in ['MANYTOMANY', 'ONETOMANY']:
             converted_values = []
-            for value in getattr(self.record, field):
+            values = self.getvalue(field)
+            for value in values:
                 if not value is None:
-                    converted_values.append(value.id)
+                    if not field in self.changed_params:
+                        converted_values.append(value.id)
+                    else:
+                        # 変更された値の場合は文字列がくる
+                        try:
+                            converted_values.append(int(value))
+                        except:
+                            pass
+
             return self.checkboxes(field, options, converted_values, **attributes)
 
         elif direction == 'MANYTOONE':
             converted_value = None
+            value = self.getvalue(field)
+            if not value is None:
+                if not field in self.changed_params:
+                    converted_value = value.id
+                else:
+                    # 変更された値の場合は文字列がくる
+                    try:
+                        converted_value = int(value)
+                    except:
+                        pass
 
-            if not getattr(self.record, field) is None:
-                converted_value = getattr(self.record, field).id
-
-            return self.select(field, options, converted_value, **attributes)        
+            return self.select(field, options, converted_value, **attributes)
 
     @_assign_id
     @_assign_name
     @_assign_classes
     def string(self, field, **attributes):
-        attributes.setdefault('value', getattr(self.record, field))
+        attributes.setdefault('value', self.getvalue(field))
 
         return '<input type="text"%s>' % self._render_attributes(attributes)
 
@@ -301,7 +329,7 @@ class FormRecord(object):
     @_assign_name
     @_assign_classes
     def file(self, field, **attributes):
-        attributes.setdefault('value', getattr(self.record, field))
+        attributes.setdefault('value', self.getvalue(field))
 
         return '<input type="file"%s>' % self._render_attributes(attributes)
 
@@ -309,7 +337,7 @@ class FormRecord(object):
     @_assign_name
     @_assign_classes
     def tel(self, field, **attributes):
-        attributes.setdefault('value', getattr(self.record, field))
+        attributes.setdefault('value', self.getvalue(field))
 
         return '<input type="tel"%s>' % self._render_attributes(attributes)
 
@@ -317,7 +345,7 @@ class FormRecord(object):
     @_assign_name
     @_assign_classes
     def password(self, field, **attributes):
-        attributes.setdefault('value', getattr(self.record, field))
+        attributes.setdefault('value', self.getvalue(field))
 
         return '<input type="password"%s>' % self._render_attributes(attributes)
 
@@ -325,7 +353,7 @@ class FormRecord(object):
     @_assign_name
     @_assign_classes
     def email(self, field, **attributes):
-        attributes.setdefault('value', getattr(self.record, field))
+        attributes.setdefault('value', self.getvalue(field))
 
         return '<input type="email"%s>' % self._render_attributes(attributes)
 
@@ -333,7 +361,7 @@ class FormRecord(object):
     @_assign_name
     @_assign_classes
     def search(self, field, **attributes):
-        attributes.setdefault('value', getattr(self.record, field))
+        attributes.setdefault('value', self.getvalue(field))
 
         return '<input type="search"%s>' % self._render_attributes(attributes)
 
@@ -341,7 +369,7 @@ class FormRecord(object):
     @_assign_name
     @_assign_classes
     def url(self, field, **attributes):
-        attributes.setdefault('value', getattr(self.record, field))
+        attributes.setdefault('value', self.getvalue(field))
 
         return '<input type="url"%s>' % self._render_attributes(attributes)
 
@@ -349,7 +377,7 @@ class FormRecord(object):
     @_assign_name
     @_assign_classes
     def hidden(self, field, **attributes):
-        attributes.setdefault('value', getattr(self.record, field))
+        attributes.setdefault('value', self.getvalue(field))
 
         return '<input type="hidden"%s>' % self._render_attributes(attributes)
 
@@ -382,6 +410,3 @@ class FormRecord(object):
 
         else:
             return self.string(*args, **attributes)
-
-    def get_value(self, name):
-        return getattr(self.record, name)

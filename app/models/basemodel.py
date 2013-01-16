@@ -18,8 +18,17 @@ inflector = Inflector()
 
 config = ConfigManager.getConfig()
 url = config['SQLALCHEMY_DATABASE_URI']
-engine = create_engine(url, encoding='utf-8')
-session = scoped_session(sessionmaker(autoflush=True, bind=engine))
+engineOptions = {}
+engineOptions['encoding'] = 'utf-8'
+
+if config.get('DEBUG'):
+    from shimehari_debugtoolbar.helpers.sqlalchemy_debug import ConnectionDebugProxy
+    engineOptions['proxy'] = ConnectionDebugProxy('main')
+
+engine = create_engine(url, **engineOptions)
+
+session = scoped_session(sessionmaker(autoflush=False, bind=engine))
+
 
 class Model(object):
 
@@ -27,22 +36,19 @@ class Model(object):
     def __tablename__(cls):
         return inflector.tableize(cls.__name__)
 
-    id =  Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
 
-    # accessibleAttributes = ()
-
-    errors = {}
     query = None
+
+    @property
+    def session(self):
+        return self.query.session
 
     def __init__(self):
         self.validatorSchema = None
 
-    def updateAttributes(self, attributes):
-        print attributes
+    def update(self, attributes):
         for key, value in attributes.iteritems():
-            # mass assignment 対策
-            # if not key in self.accessibleAttributes:
-               # continue
 
             if isinstance(getattr(self, key), list):
                 if hasattr(getattr(self, key), '_sa_adapter'):
@@ -50,19 +56,19 @@ class Model(object):
                     table_name = getattr(self, key)._sa_adapter._key
 
                     component_path = str("app.models.%s" % inflector.classify(table_name)).split('.')
-                    package_path   = component_path[:-1]
-                    package_name   = ".".join(package_path)
-                    class_name     = component_path[-1]
+                    package_path = component_path[:-1]
+                    package_name = ".".join(package_path)
+                    class_name = component_path[-1]
 
                     __import__(str(package_name))
                     import sys
-                    cls = getattr(sys.modules[package_name],class_name)
+                    cls = getattr(sys.modules[package_name], class_name)
 
                     string_value = value
 
                     value = []
                     for val in string_value:
-                        value.append(session.query(cls).get(val))
+                        value.append(self.session.query(cls).get(val))
             else:
                 if hasattr(self, key + '_id'):
                     if value == '':
@@ -70,24 +76,18 @@ class Model(object):
                     setattr(self, key + '_id', value)
                     continue
 
-            # print key, value
             setattr(self, key, value)
         self.save()
 
     def validate(self, attributes):
-        self.errors = {}
-        try:
-            return self.validatorSchema.to_python(attributes)
-        except Invalid, e:
-            self.errors.update(e.error_dict)
-            raise
+        return self.validatorSchema.to_python(attributes)
 
     def save(self):
         try:
-            session.add(self)
-            session.commit()
+            self.session.add(self)
+            self.session.commit()
         except:
-            session.rollback()
+            self.session.rollback()
             raise
 
     def copy(self):
@@ -98,11 +98,14 @@ class Model(object):
             if hasattr(self, "deleted_at"):
                 self.deleted_at = func.now()
             else:
-                session.delete(self)
-            session.commit()
+                self.session.delete(self)
+            self.session.commit()
         except:
-            session.rollback()
+            self.session.rollback()
             raise
+
+    # @classmethod
+    # def create(cls, params):
 
 
 def session_mapper(cls):

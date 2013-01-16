@@ -5,7 +5,7 @@ Mako==0.7.2
 MarkupSafe==0.15
 PyYAML==3.10
 SQLAlchemy==0.7.9
-Shimehari==0.1.10
+Shimehari==0.1.11
 Werkzeug==0.8.3
 alembic==0.4.0
 cssprefixer==1.4.1
