@@ -42,9 +42,9 @@ def setupAssetEnviromentFromYAML(app, yamlFile):
     app.templateEnv.assets_environment = assetEnv
 setupAssetEnviromentFromYAML(app, 'assets/bundles.yml')
 
-from shimehari_debugtoolbar import DebugToolbarExtension
+# from shimehari_debugtoolbar import DebugToolbarExtension
 
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 # from shimehari.configuration import ConfigManager
 # isDebug = ConfigManager.getConfig().get('DEBUG', False)
