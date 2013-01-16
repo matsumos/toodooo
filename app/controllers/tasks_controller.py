@@ -19,17 +19,9 @@ class TasksController(ApplicationController):
     PER_PAGE = 5
 
     def index(self, page=1):
-        # import pycallgraph
-        # pycallgraph.start_trace()
-
         tasks = Task.query.filter(Task.doned_at == None).order_by(Task.created_at.desc())
         tasks, pagination = paged(page, self.PER_PAGE, tasks)
-
         tags = Tag.query.order_by(Tag.name)
-        # import pdb; pdb.set_trace()
-
-        # pycallgraph.make_dot_graph('callgraph.png')
-
         return self.renderTemplate('tasks/index.slim', tasks=tasks, pagination=pagination, tags=tags, action='index')
 
     def dones(self, page=1):
@@ -45,7 +37,6 @@ class TasksController(ApplicationController):
 
     def show(self, id):
         task = Task.query.get(id)
-        # import pdb; pdb.set_trace()
         if not task:
             abort(404)
         return self.renderTemplate('tasks/show.slim', task=task)
@@ -78,43 +69,22 @@ class TasksController(ApplicationController):
         try:
             validParams = task.validate(params['task'])
             task.update(validParams)
-            # task.update(params['task'])
             flash(u'新規作成しました。', 'success')
             return redirect('/tasks/%s' % task.id)
         except Invalid, e:
             flash(u'保存に失敗しました。', 'error')
-
-            print e
-
-            #うーむ...
-            # task = task.copy()
-            # task.update(params['task'])
-
             return self.renderTemplate('tasks/edit.slim', task=task, errors=e.error_dict, params=params)
 
     def update(self, id):
         task = Task.query.get(id)
         params = parseFromData(request.form.copy())
-        print params
-        # task.update(params['task'])
-        # print task.name
         try:
             validParams = task.validate(params['task'])
             task.update(validParams)
-            # task.save()
             flash(u'変更しました。', 'success')
             return redirect('/tasks/%s' % id)
         except Invalid, e:
-            # import sys
-            # print sys.exc_info()[0]
-            # print sys.exc_info()[1]
-
             flash(u'保存に失敗しました。', 'error')
-
-            #うーむ...
-            # task = task.copy()
-            # task.update(params['task'])
-
             return self.renderTemplate('tasks/edit.slim', task=task, errors=e.error_dict, params=params)
 
     def destroy(self, id):

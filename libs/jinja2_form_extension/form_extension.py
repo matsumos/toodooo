@@ -6,6 +6,7 @@ from jinja2.ext import Extension
 from .form_record import FormRecord
 from .constants import *
 
+
 class FormExtension(Extension):
 
     DEFAULT_FORM_BLOCK_ASSIGNEE = intern('f')
@@ -51,9 +52,9 @@ class FormExtension(Extension):
 
     def _parse_form_for_tag(self, parser, tag):
         lineno = tag.lineno
-        
+
         class_attr = self._pasrse_short_class_attr(parser)
-            
+
         record = parser.parse_expression()
 
         arguments = [record]
@@ -69,7 +70,7 @@ class FormExtension(Extension):
             assignee = self.DEFAULT_FORM_BLOCK_ASSIGNEE
 
         body = parser.parse_statements(['name:end' + tag.value], drop_needle = True)
-        
+
         self._skip_after_block_end(parser)
 
         return nodes.CallBlock(
@@ -97,9 +98,9 @@ class FormExtension(Extension):
     def _common_parse(f):
         def decorator(self, parser, tag):
             lineno = tag.lineno
-            
+
             class_attr = self._pasrse_short_class_attr(parser)
-                
+
             arguments = f(self, parser, tag)
 
             arguments += self._parse_keyword_args(parser)
@@ -107,8 +108,8 @@ class FormExtension(Extension):
             if class_attr:
                 arguments.append(class_attr)
 
-            body = parser.parse_statements(['name:end' + tag.value], drop_needle = True)
-            
+            body = parser.parse_statements(['name:end' + tag.value], drop_needle=True)
+
             self._skip_after_block_end(parser)
 
             return nodes.CallBlock(
@@ -277,7 +278,7 @@ class FormExtension(Extension):
 
     def _pasrse_short_class_attr(self, parser):
         class_attrs = []
-        
+
         while parser.stream.current.test('dot'):
             parser.stream.expect('dot')
             class_attrs.append(parser.stream.current.value)
@@ -285,7 +286,7 @@ class FormExtension(Extension):
 
         # jinja タグの中では class キーワードが使えないため cls で代用
         rv = nodes.Keyword(CLASS_KEYWORD_ALIAS, nodes.Const(" ".join(class_attrs)))
-        
+
         return rv
 
     def _parse_keyword_args(self, parser, support_with_statement=False):

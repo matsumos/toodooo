@@ -13,15 +13,14 @@ from webassets import Environment as AssetsEnvironment
 from webassets.loaders import YAMLLoader
 from jinja2_decolater_extension import DecolaterExtension
 from jinja2_form_extension import FormExtension
-from shimehari.configuration import ConfigManager
 
 shimehariOptions = {
     'templateOptions': {
         'extensions': [
-        	SlimishExtension,
-        	AssetsExtension,
-        	DecolaterExtension,
-        	FormExtension
+            SlimishExtension,
+            AssetsExtension,
+            DecolaterExtension,
+            FormExtension
         ]
     }
 }
@@ -33,19 +32,21 @@ app.templateEnv.authenticity_token_key = '_csrfToken'
 # app.templateEnv.slim_debug = False
 # app.templateEnv.slim_print = True
 
+
 def setupAssetEnviromentFromYAML(app, yamlFile):
-	appDir = './' + app.config['APP_DIRECTORY'] + '/'
-	assetEnv = AssetsEnvironment(appDir, '/')
-	bundles = YAMLLoader(appDir + yamlFile).load_bundles()
-	for bundle in bundles:
-		assetEnv.register(bundle, bundles[bundle])
-	app.templateEnv.assets_environment = assetEnv
+    appDir = './' + app.config['APP_DIRECTORY'] + '/'
+    assetEnv = AssetsEnvironment(appDir, '/')
+    bundles = YAMLLoader(appDir + yamlFile).load_bundles()
+    for bundle in bundles:
+        assetEnv.register(bundle, bundles[bundle])
+    app.templateEnv.assets_environment = assetEnv
 setupAssetEnviromentFromYAML(app, 'assets/bundles.yml')
 
 from shimehari_debugtoolbar import DebugToolbarExtension
 
 toolbar = DebugToolbarExtension(app)
 
+# from shimehari.configuration import ConfigManager
 # isDebug = ConfigManager.getConfig().get('DEBUG', False)
 # if isDebug:
 #     from werkzeug.debug import DebuggedApplication
